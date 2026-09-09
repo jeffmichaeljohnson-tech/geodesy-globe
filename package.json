@@ -6,7 +6,9 @@
   "main": "./src/index.ts",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mutation": "node scripts/mutation-runner.mjs . mutations.json",
+    "test:mutation-runner": "node scripts/mutation-runner.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

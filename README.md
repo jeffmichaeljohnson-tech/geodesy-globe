@@ -86,6 +86,37 @@ That is a claim about a file, so a test asserts it: `index.test.ts` reads
 `geodesyMath.ts` and fails if it ever grows an import. A README sentence cannot
 fail; that check can.
 
+## Mutation
+
+A pass count says a suite runs. It does not say the suite would notice if the
+code were wrong. So the mutations are committed rather than described:
+
+```
+npm run mutation
+```
+
+`mutations.json` lists fourteen changes to real logic. The runner applies each one,
+runs the suite, restores the file and verifies the restore by hash. It reports
+four verdicts, and the third is why it exists:
+
+| verdict | meaning |
+|---|---|
+| `KILLED` | the suite ran and failed — the mutation is caught |
+| `SURVIVED` | the suite ran and passed — nothing pins this behaviour |
+| `INCONCLUSIVE` | non-zero exit, but no evidence any test ran |
+| `NOT-APPLIED` | the pattern was absent, or matched more than once |
+
+A mutation that stops the code compiling also exits non-zero. A runner reading
+only the exit code scores that as a kill it never earned, so a spec declares a
+marker the test runner prints only when tests actually execute, and a non-zero
+exit without it is `INCONCLUSIVE` — never counted as caught.
+
+The runner has its own suite (`npm run test:mutation-runner`), because a tool that measures test suites
+is itself a check, and a check nobody has watched fail is a claim.
+
+The fourteen include the two that originally survived unnoticed: the WGS84
+flattening, and every constant whose assertion was written in terms of itself.
+
 ## Status
 
 Extracted from an application globe. `three` is a peer dependency and only
