@@ -5,7 +5,7 @@ import { sphereToEcefMatrix } from './geodesy';
 import { EARTH_RADIUS_M } from './depthRange';
 import { ORBITAL_SPEED, REFERENCE_ALT_KM, autoRotateSpeedFor } from './autoRotate';
 import { TILT_THRESHOLD_DEG, PITCH_TILTED_DEG, PITCH_MAX_DEG, nextPitchStop } from './cameraPitch';
-import { MAX_FIT_DIST, fitDistanceForAspect } from './framing';
+import { MAX_FIT_DIST, fitDistanceForAspect, FOV_Y_RAD } from './framing';
 
 /**
  * Constants pinned against LITERALS.
@@ -66,5 +66,21 @@ describe('constants pinned to literals, not to themselves', () => {
     const prime = new Vector3(1, 0, 0).applyMatrix4(m);
     expect(prime.x).toBeCloseTo(1, 10);
     expect(prime.y).toBeCloseTo(0, 10);
+  });
+});
+
+describe('the field of view, which nothing pinned', () => {
+  it('is 30 degrees, stated as a literal', () => {
+    // Found by mutation: FOV_Y_RAD could be changed and the suite stayed green.
+    // `framing.test.ts` never imports it, and `homecoming.test.ts` uses it only
+    // as an INPUT — never on an expected side. The one identity that looks like
+    // a check, fitDistanceForAspect(REF_ASPECT, BASE) === BASE, holds
+    // algebraically for any FOV because the half-angle cancels from both terms.
+    //
+    // Its own comment says it matches the camera in the consuming app, which is
+    // a constant whose whole job is to agree with a file this package cannot
+    // see. That makes pinning the number here the only check available.
+    expect(FOV_Y_RAD).toBeCloseTo((30 * Math.PI) / 180, 12);
+    expect((FOV_Y_RAD * 180) / Math.PI).toBeCloseTo(30, 10);
   });
 });

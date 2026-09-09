@@ -70,7 +70,25 @@ export function ecefToGeodetic(x: number, y: number, z: number): { latDeg: numbe
   const lat = Math.atan2(z + ep2 * WGS84_B * sinT * sinT * sinT, p - WGS84_E2 * WGS84.a * cosT * cosT * cosT);
   const sinLat = Math.sin(lat);
   const N = WGS84.a / Math.sqrt(1 - WGS84_E2 * sinLat * sinLat);
-  const alt = p / Math.cos(lat) - N;
+
+  // Altitude has TWO forms, and the usual one is singular at the poles.
+  //
+  // `p / cos(lat) - N` is exact away from the axis and collapses on it: at the
+  // pole `p` is exactly 0 while `cos(90°)` is about 6e-17, so the quotient is 0
+  // and the altitude comes back as `-N` — off by 6,399,593 m, with the latitude
+  // still correct beside it. Measured, on the most obvious input a caller can
+  // construct by hand: `ecefToGeodetic(0, 0, WGS84_B)`.
+  //
+  // The round-trip never caught it because `geodeticToEcef(90, 0, 0)` yields a
+  // sub-nanometre x from `cos(90°)`, so `p` is tiny-but-non-zero and the normal
+  // branch holds. Only a hand-built axis point reaches the singularity, which is
+  // exactly the input a consumer of this package is most likely to type.
+  //
+  // Near the axis, use the polar form instead: |z| / |sin(lat)| - N(1 - e²).
+  const alt = Math.abs(p) > 1
+    ? p / Math.cos(lat) - N
+    : Math.abs(z) / Math.abs(sinLat) - N * (1 - WGS84_E2);
+
   return { latDeg: lat * RAD2DEG, lonDeg: lon * RAD2DEG, altM: alt };
 }
 

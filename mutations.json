@@ -2,33 +2,107 @@
   "command": "npx vitest run",
   "ran": "Tests\\s+\\d+ (passed|failed)",
   "mutations": [
-    { "name": "WGS84 flattening 1/298.257223563 -> 1/300", "file": "src/geodesyMath.ts",
-      "find": "f: 1 / 298.257223563,", "replace": "f: 1 / 300," },
-    { "name": "semi-major axis off by one metre", "file": "src/geodesyMath.ts",
-      "find": "a: 6_378_137.0,", "replace": "a: 6_378_138.0," },
-    { "name": "sphere texture longitude offset 0 -> PI", "file": "src/geodesyMath.ts",
-      "find": "export const SPHERE_TEXTURE_LON_OFFSET = 0;", "replace": "export const SPHERE_TEXTURE_LON_OFFSET = Math.PI;" },
-    { "name": "sidereal day becomes a solar day", "file": "src/autoRotate.ts",
-      "find": "export const SIDEREAL_DAY_SECONDS = 86_164.0905;", "replace": "export const SIDEREAL_DAY_SECONDS = 86_400.0;" },
-    { "name": "orbital speed doubled", "file": "src/autoRotate.ts",
-      "find": "export const ORBITAL_SPEED = 0.06;", "replace": "export const ORBITAL_SPEED = 0.12;" },
-    { "name": "pitch tilt threshold 10 -> 20 deg", "file": "src/cameraPitch.ts",
-      "find": "export const TILT_THRESHOLD_DEG = 10;", "replace": "export const TILT_THRESHOLD_DEG = 20;" },
-    { "name": "max pitch 85 -> 90 deg", "file": "src/cameraPitch.ts",
-      "find": "export const PITCH_MAX_DEG = 85;", "replace": "export const PITCH_MAX_DEG = 90;" },
-    { "name": "ground pivot altitude 60km -> 6km", "file": "src/cameraTarget.ts",
-      "find": "export const PIVOT_GROUND_ALT_M = 60_000;", "replace": "export const PIVOT_GROUND_ALT_M = 6_000;" },
-    { "name": "minimum ground distance 60 -> 600 m", "file": "src/cameraTarget.ts",
-      "find": "export const MIN_GROUND_DISTANCE_M = 60;", "replace": "export const MIN_GROUND_DISTANCE_M = 600;" },
-    { "name": "IUGG mean radius drifts to the nominal value", "file": "src/depthRange.ts",
-      "find": "export const EARTH_RADIUS_M = 6_371_008.8;", "replace": "export const EARTH_RADIUS_M = 6_371_000.0;" },
-    { "name": "depth budget tightened past reality", "file": "src/depthRange.ts",
-      "find": "export const MAX_DEPTH_RATIO = 1e6;", "replace": "export const MAX_DEPTH_RATIO = 1e2;" },
-    { "name": "reference aspect 1.6 -> 1.77", "file": "src/framing.ts",
-      "find": "export const REF_ASPECT = 1.6;", "replace": "export const REF_ASPECT = 1.77;" },
-    { "name": "framing clamp 12 -> 20", "file": "src/framing.ts",
-      "find": "export const MAX_FIT_DIST = 12;", "replace": "export const MAX_FIT_DIST = 20;" },
-    { "name": "near fly tier 150 -> 15 km", "file": "src/homecoming.ts",
-      "find": "export const FLY_TIER_NEAR_KM = 150;", "replace": "export const FLY_TIER_NEAR_KM = 15;" }
+    {
+      "name": "WGS84 flattening 1/298.257223563 -> 1/300",
+      "file": "src/geodesyMath.ts",
+      "find": "f: 1 / 298.257223563,",
+      "replace": "f: 1 / 300,"
+    },
+    {
+      "name": "semi-major axis off by one metre",
+      "file": "src/geodesyMath.ts",
+      "find": "a: 6_378_137.0,",
+      "replace": "a: 6_378_138.0,"
+    },
+    {
+      "name": "sphere texture longitude offset 0 -> PI",
+      "file": "src/geodesyMath.ts",
+      "find": "export const SPHERE_TEXTURE_LON_OFFSET = 0;",
+      "replace": "export const SPHERE_TEXTURE_LON_OFFSET = Math.PI;"
+    },
+    {
+      "name": "sidereal day becomes a solar day",
+      "file": "src/autoRotate.ts",
+      "find": "export const SIDEREAL_DAY_SECONDS = 86_164.0905;",
+      "replace": "export const SIDEREAL_DAY_SECONDS = 86_400.0;"
+    },
+    {
+      "name": "orbital speed doubled",
+      "file": "src/autoRotate.ts",
+      "find": "export const ORBITAL_SPEED = 0.06;",
+      "replace": "export const ORBITAL_SPEED = 0.12;"
+    },
+    {
+      "name": "pitch tilt threshold 10 -> 20 deg",
+      "file": "src/cameraPitch.ts",
+      "find": "export const TILT_THRESHOLD_DEG = 10;",
+      "replace": "export const TILT_THRESHOLD_DEG = 20;"
+    },
+    {
+      "name": "max pitch 85 -> 90 deg",
+      "file": "src/cameraPitch.ts",
+      "find": "export const PITCH_MAX_DEG = 85;",
+      "replace": "export const PITCH_MAX_DEG = 90;"
+    },
+    {
+      "name": "ground pivot altitude 60km -> 6km",
+      "file": "src/cameraTarget.ts",
+      "find": "export const PIVOT_GROUND_ALT_M = 60_000;",
+      "replace": "export const PIVOT_GROUND_ALT_M = 6_000;"
+    },
+    {
+      "name": "minimum ground distance 60 -> 600 m",
+      "file": "src/cameraTarget.ts",
+      "find": "export const MIN_GROUND_DISTANCE_M = 60;",
+      "replace": "export const MIN_GROUND_DISTANCE_M = 600;"
+    },
+    {
+      "name": "IUGG mean radius drifts to the nominal value",
+      "file": "src/depthRange.ts",
+      "find": "export const EARTH_RADIUS_M = 6_371_008.8;",
+      "replace": "export const EARTH_RADIUS_M = 6_371_000.0;"
+    },
+    {
+      "name": "depth budget tightened past reality",
+      "file": "src/depthRange.ts",
+      "find": "export const MAX_DEPTH_RATIO = 1e6;",
+      "replace": "export const MAX_DEPTH_RATIO = 1e2;"
+    },
+    {
+      "name": "reference aspect 1.6 -> 1.77",
+      "file": "src/framing.ts",
+      "find": "export const REF_ASPECT = 1.6;",
+      "replace": "export const REF_ASPECT = 1.77;"
+    },
+    {
+      "name": "framing clamp 12 -> 20",
+      "file": "src/framing.ts",
+      "find": "export const MAX_FIT_DIST = 12;",
+      "replace": "export const MAX_FIT_DIST = 20;"
+    },
+    {
+      "name": "near fly tier 150 -> 15 km",
+      "file": "src/homecoming.ts",
+      "find": "export const FLY_TIER_NEAR_KM = 150;",
+      "replace": "export const FLY_TIER_NEAR_KM = 15;"
+    },
+    {
+      "name": "the polar altitude branch is removed (the -6,399,593 m bug)",
+      "file": "src/geodesyMath.ts",
+      "find": "  const alt = Math.abs(p) > 1\n    ? p / Math.cos(lat) - N\n    : Math.abs(z) / Math.abs(sinLat) - N * (1 - WGS84_E2);",
+      "replace": "  const alt = p / Math.cos(lat) - N;"
+    },
+    {
+      "name": "the polar branch fires everywhere, breaking ordinary points",
+      "file": "src/geodesyMath.ts",
+      "find": "  const alt = Math.abs(p) > 1\n    ? p / Math.cos(lat) - N\n    : Math.abs(z) / Math.abs(sinLat) - N * (1 - WGS84_E2);",
+      "replace": "  const alt = Math.abs(z) / Math.abs(sinLat) - N * (1 - WGS84_E2);"
+    },
+    {
+      "name": "the field of view drifts by half a degree",
+      "file": "src/framing.ts",
+      "find": "export const FOV_Y_RAD = (30 * Math.PI) / 180;",
+      "replace": "export const FOV_Y_RAD = (30.5 * Math.PI) / 180;"
+    }
   ]
 }

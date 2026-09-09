@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WGS84, WGS84_B, WGS84_E2, geodeticToEcef } from './geodesyMath';
+import { WGS84, WGS84_B, WGS84_E2, geodeticToEcef, ecefToGeodetic } from './geodesyMath';
 
 /**
  * Conformance vectors for the WGS84 ellipsoid.
@@ -58,4 +58,39 @@ describe('geodeticToEcef conformance vectors away from the equator', () => {
       expect(got[2]).toBeCloseTo(want[2], 3);
     });
   }
+});
+
+describe('the poles, which the round-trip could not reach', () => {
+  // A red-team pass found `ecefToGeodetic(0, 0, WGS84_B)` — the north pole
+  // written out by hand — returning an altitude of −6,399,593 m with the
+  // latitude correct beside it. The usual altitude formula divides by cos(lat),
+  // which is ~6e-17 there while `p` is exactly 0.
+  //
+  // The existing round-trip tests could never find it: `geodeticToEcef(90,0,0)`
+  // produces a sub-nanometre x, so `p` is tiny-but-non-zero and the singular
+  // branch is skipped. Only a hand-built axis point reaches it — which is the
+  // input a consumer of this package is most likely to write.
+  const cases: ReadonlyArray<readonly [string, number, number, number, number, number]> = [
+    ['north pole on the axis', 0, 0, WGS84_B, 90, 0],
+    ['south pole on the axis', 0, 0, -WGS84_B, -90, 0],
+    ['north pole at 400 km', 0, 0, WGS84_B + 400_000, 90, 400_000],
+    ['south pole at 400 km', 0, 0, -(WGS84_B + 400_000), -90, 400_000],
+  ];
+
+  for (const [name, x, y, z, wantLat, wantAlt] of cases) {
+    it(`${name} has the right altitude, not minus the prime vertical radius`, () => {
+      const g = ecefToGeodetic(x, y, z);
+      expect(g.latDeg).toBeCloseTo(wantLat, 9);
+      expect(g.altM).toBeCloseTo(wantAlt, 3);
+    });
+  }
+
+  it('the equator and mid-latitudes are unaffected by the polar branch', () => {
+    // The must-not-fire half: a polar special case that fired everywhere would
+    // pass the four tests above and break every ordinary point.
+    expect(ecefToGeodetic(WGS84.a, 0, 0).altM).toBeCloseTo(0, 3);
+    expect(ecefToGeodetic(WGS84.a + 1000, 0, 0).altM).toBeCloseTo(1000, 3);
+    const [x, y, z] = geodeticToEcef(45, -120, 250);
+    expect(ecefToGeodetic(x, y, z).altM).toBeCloseTo(250, 3);
+  });
 });

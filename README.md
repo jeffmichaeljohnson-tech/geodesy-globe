@@ -28,7 +28,7 @@ npm install
 npx vitest run
 ```
 
-vitest reports 16 files, 192 passed.
+vitest reports 17 files, 198 passed.
 
 ## An assertion written in terms of its own constant cannot fail
 
@@ -54,6 +54,23 @@ said it matched `geodesyMath.EARTH_MEAN_RADIUS`. It does not — 6,371,008.8 is 
 IUGG mean radius (2a+b)/3, and 6,371,000 is the nominal value used for
 great-circle work. They differ by 8.77 m. Both are right for their own job; the
 comment was wrong, and a test now pins the derivation instead of a claim.
+
+## The poles were wrong by 6,399,593 metres
+
+A red-team pass found `ecefToGeodetic(0, 0, WGS84_B)` — the north pole written
+out by hand — returning an altitude of **−6,399,593 m**, with the latitude
+correct beside it. The usual altitude formula is `p / cos(lat) − N`, and on the
+axis `p` is exactly zero while `cos(90°)` is about 6e-17, so the whole term
+vanishes and the altitude comes back as minus the prime vertical radius.
+
+**The round-trip tests could never have found it.** `geodeticToEcef(90, 0, 0)`
+yields a sub-nanometre x from `cos(90°)`, so `p` is tiny but non-zero and the
+singular branch is skipped. Only a hand-built axis point reaches it — which is
+precisely what a consumer of this package is most likely to type.
+
+Fixed with the polar form, `|z| / |sin(lat)| − N(1 − e²)`, guarded on `p`. Both
+directions are pinned: the four polar cases, and a control proving the branch
+does not fire at the equator or mid-latitudes, where it would break everything.
 
 ## The ellipsoid is pinned, and it was not before
 
@@ -95,7 +112,7 @@ code were wrong. So the mutations are committed rather than described:
 npm run mutation
 ```
 
-`mutations.json` lists fourteen changes to real logic. The runner applies each one,
+`mutations.json` lists seventeen changes to real logic. The runner applies each one,
 runs the suite, restores the file and verifies the restore by hash. It reports
 four verdicts, and the third is why it exists:
 

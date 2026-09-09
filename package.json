@@ -1,14 +1,43 @@
 {
   "name": "geodesy-globe",
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "description": "Geodetic maths and camera-flight logic for a real-scale Earth globe: WGS84, ECEF, float64 origin rebasing, great-circle arcs, and the framing maths behind a fly-to.",
+  "keywords": [
+    "geodesy",
+    "wgs84",
+    "ecef",
+    "great-circle",
+    "globe",
+    "three"
+  ],
   "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./math": "./src/geodesyMath.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OWNER/geodesy-globe.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "mutation": "node scripts/mutation-runner.mjs . mutations.json",
     "test:mutation-runner": "node scripts/mutation-runner.test.mjs"
+  },
+  "peerDependencies": {
+    "three": ">=0.170"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -16,16 +45,5 @@
     "three": "^0.185.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
-  },
-  "peerDependencies": {
-    "three": ">=0.170"
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./math": "./src/geodesyMath.ts"
-  },
-  "types": "./src/index.ts",
-  "engines": {
-    "node": ">=20"
   }
 }
