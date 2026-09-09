@@ -22,6 +22,43 @@ describe('parity with the app’s flight constants', () => {
   });
 });
 
+describe('haversineKm axis order', () => {
+  // haversineKm is the only [lng, lat] signature in this package; everything
+  // else is latitude-first. A swapped pair type-checks and returns a plausible
+  // number, so the order is pinned here rather than left to the label.
+  it('reads element 0 as longitude and element 1 as latitude', () => {
+    // Two points differing ONLY in longitude, at the equator where a degree of
+    // longitude is a full degree of arc.
+    const oneDegOfLon = haversineKm([0, 0], [1, 0]);
+    // The same two numbers read the other way round differ only in LATITUDE.
+    const oneDegOfLat = haversineKm([0, 0], [0, 1]);
+    // Both are one degree of arc at the equator, so a swap is invisible there --
+    // which is exactly why the discriminating case has to be off the equator.
+    expect(oneDegOfLon).toBeCloseTo(oneDegOfLat, 6);
+
+    // At 60N a degree of longitude is half a degree of arc; a degree of latitude
+    // is unchanged. Swapping the pair therefore doubles or halves the answer.
+    const lonAt60 = haversineKm([0, 60], [1, 60]);
+    const latFrom60 = haversineKm([0, 60], [0, 61]);
+    expect(lonAt60).toBeLessThan(latFrom60 * 0.55);
+    expect(lonAt60).toBeGreaterThan(latFrom60 * 0.45);
+  });
+
+  it('a swapped pair gives a DIFFERENT distance, away from the symmetric cases', () => {
+    // Two symmetries make a careless swap test pass against a swapped
+    // implementation, and both were hit while writing this:
+    //   - at the equator a degree of longitude IS a degree of latitude;
+    //   - from the origin, cos(sigma) = cos(lat)cos(lon), which is symmetric in
+    //     the two, so ANY pair with an endpoint at [0, 0] is swap-invariant.
+    // So the discriminating case has neither endpoint at the origin nor on the
+    // equator. 1278.73 km as written; 1544.76 km read latitude-first.
+    const asWritten = haversineKm([10, 50], [20, 60]);
+    const swapped = haversineKm([50, 10], [60, 20]);
+    expect(asWritten).toBeCloseTo(1278.73, 1);
+    expect(swapped).toBeCloseTo(1544.76, 1);
+  });
+});
+
 describe('haversineKm', () => {
   it('is zero for a point and itself', () => {
     expect(haversineKm([-83.05, 42.33], [-83.05, 42.33])).toBe(0);

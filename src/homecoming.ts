@@ -23,8 +23,27 @@
  * test rather than a slow divergence nobody notices.
  */
 
+/**
+ * A point in **Mapbox axis order: longitude first, then latitude.**
+ *
+ * This is the odd one out in this package and the label is load-bearing. Every
+ * other function here takes latitude first -- `geodeticToEcef(latDeg, lonDeg)`,
+ * `centralAngle(aLatDeg, aLonDeg, ...)`, `isDrawablePoint(lat, lng)` -- because
+ * they are geodesy. These two take `[lng, lat]` because they mirror a Mapbox
+ * call site, and changing them to match would make this file disagree with the
+ * app it was copied from, which is the drift the header exists to prevent.
+ *
+ * A bare `[number, number]` gave the compiler nothing: a `[lat, lng]` passed by
+ * mistake type-checks, returns a plausible number, and is wrong silently. The
+ * labels surface as `[lng: number, lat: number]` in editor hints and on every
+ * signature below, so the order is visible where the call is written rather than
+ * only in a comment two screens up. It costs nothing at runtime -- a labelled
+ * tuple is the same tuple.
+ */
+export type LngLat = [lng: number, lat: number];
+
 /** Great-circle distance in km between two [lng, lat] points (Mapbox axis order). */
-export function haversineKm(a: [number, number], b: [number, number]): number {
+export function haversineKm(a: LngLat, b: LngLat): number {
   const R = 6371;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   const dLat = toRad(b[1] - a[1]);
@@ -53,8 +72,8 @@ export const FLY_TIER_MED_KM = 1200;
  * alongside the tier so a caller cannot pair one tier's name with another's length.
  */
 export function flyTierFor(
-  from: [number, number],
-  to: [number, number],
+  from: LngLat,
+  to: LngLat,
 ): { tier: FlyTier; durationMs: number } {
   const km = haversineKm(from, to);
   const tier: FlyTier = km < FLY_TIER_NEAR_KM ? 'near' : km < FLY_TIER_MED_KM ? 'med' : 'far';

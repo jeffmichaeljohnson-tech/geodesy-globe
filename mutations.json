@@ -103,6 +103,18 @@
       "file": "src/framing.ts",
       "find": "export const FOV_Y_RAD = (30 * Math.PI) / 180;",
       "replace": "export const FOV_Y_RAD = (30.5 * Math.PI) / 180;"
+    },
+    {
+      "name": "haversineKm reads its tuples latitude-first",
+      "file": "src/homecoming.ts",
+      "find": "  const dLat = toRad(b[1] - a[1]);\n  const dLng = toRad(b[0] - a[0]);",
+      "replace": "  const dLat = toRad(b[0] - a[0]);\n  const dLng = toRad(b[1] - a[1]);"
+    },
+    {
+      "name": "haversineKm drops the cos(lat) longitude scaling",
+      "file": "src/homecoming.ts",
+      "find": "    Math.cos(toRad(a[1])) * Math.cos(toRad(b[1])) * Math.sin(dLng / 2) ** 2;",
+      "replace": "    Math.sin(dLng / 2) ** 2;"
     }
   ]
 }
