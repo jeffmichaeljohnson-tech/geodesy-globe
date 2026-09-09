@@ -1,0 +1,16 @@
+{
+  "name": "geodesy-globe",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Geodetic maths and camera-flight logic for a real-scale Earth globe: WGS84, ECEF, float64 origin rebasing, great-circle arcs, and the framing maths behind a fly-to.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "three": "^0.185.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
