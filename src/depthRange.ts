@@ -32,7 +32,16 @@
  * than discovered as flicker on someone's screen.
  */
 
-/** Mean Earth radius in metres. Matches geo/geodesy. */
+/**
+ * IUGG mean radius R1 = (2a + b) / 3 for the WGS84 ellipsoid, in metres.
+ *
+ * NOT the same number as `EARTH_MEAN_RADIUS` in `geodesyMath`, which is the
+ * nominal 6_371_000 used for great-circle work. They differ by 8.77 m, and this
+ * comment used to claim they matched. Both are defensible for their own job —
+ * horizon distance wants the volumetric mean, arc length wants the conventional
+ * one — but they are different quantities and saying otherwise invites someone
+ * to "fix" one to the other. `constants.test.ts` pins this to the derivation.
+ */
 export const EARTH_RADIUS_M = 6_371_008.8;
 
 /**

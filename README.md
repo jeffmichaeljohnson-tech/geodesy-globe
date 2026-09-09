@@ -28,7 +28,32 @@ npm install
 npx vitest run
 ```
 
-vitest reports 14 files, 187 passed.
+vitest reports 15 files, 192 passed.
+
+## An assertion written in terms of its own constant cannot fail
+
+That sentence is the most useful thing in this repository, and it cost a mutation
+sweep to find. Seven constants could be changed with the whole suite staying
+green, and it was one defect wearing seven hats:
+
+```ts
+expect(autoRotateSpeedFor(REFERENCE_ALT_KM)).toBeCloseTo(ORBITAL_SPEED)
+```
+
+Doubling `ORBITAL_SPEED` doubles both sides. The same shape hid the pitch
+threshold, the framing clamp, and — worst — the WGS84 ellipsoid, where the polar
+case asserted `z ≈ WGS84_B` and `WGS84_B` is derived from the flattening under
+test.
+
+`src/constants.test.ts` and `src/wgs84Conformance.test.ts` now name the numbers as
+literals. They are deliberately brittle: a value that changes on purpose should
+force a visible edit in the same commit.
+
+While pinning them, one comment turned out to be false. `depthRange.EARTH_RADIUS_M`
+said it matched `geodesyMath.EARTH_MEAN_RADIUS`. It does not — 6,371,008.8 is the
+IUGG mean radius (2a+b)/3, and 6,371,000 is the nominal value used for
+great-circle work. They differ by 8.77 m. Both are right for their own job; the
+comment was wrong, and a test now pins the derivation instead of a claim.
 
 ## The ellipsoid is pinned, and it was not before
 
