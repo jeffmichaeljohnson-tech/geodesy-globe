@@ -29,7 +29,10 @@
  * The renderer converts each sample through `worldOrigin.geodeticToRender`, exactly
  * as the coastlines do, keeping arcs in the same geodetic frame as everything else.
  */
-import { EARTH_MEAN_RADIUS } from './geodesy';
+// Import the constant from the three-free core, not from './geodesy' — this
+// module's header promises "pure geometry (no three.js)", and reaching through
+// geodesy.ts would drag three into its import graph and make that promise false.
+import { EARTH_MEAN_RADIUS } from './geodesyMath';
 
 const DEG2RAD = Math.PI / 180;
 const RAD2DEG = 180 / Math.PI;

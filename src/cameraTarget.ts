@@ -37,7 +37,9 @@
  * geometry that fails silently and looks like "the controls feel wrong".
  */
 
-import { EARTH_MEAN_RADIUS } from './geodesy';
+// From the three-free core, not './geodesy' — this module's header promises
+// "no three.js", and reaching through geodesy.ts would pull three into its graph.
+import { EARTH_MEAN_RADIUS } from './geodesyMath';
 
 /**
  * Altitude band across which the pivot migrates from Earth's centre to the
