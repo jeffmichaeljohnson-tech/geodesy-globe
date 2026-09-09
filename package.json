@@ -23,10 +23,6 @@
     "README.md",
     "LICENSE"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/OWNER/geodesy-globe.git"
-  },
   "engines": {
     "node": ">=20"
   },
