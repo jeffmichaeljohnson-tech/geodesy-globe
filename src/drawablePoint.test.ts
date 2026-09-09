@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { isDrawablePoint } from './drawablePoint';
-import { personLabel, UNNAMED } from './personLabel';
 
 describe('isDrawablePoint', () => {
   it('accepts an ordinary coordinate', () => {
@@ -37,20 +36,6 @@ describe('isDrawablePoint', () => {
   it('accepts the exact poles and the antimeridian', () => {
     expect(isDrawablePoint(90, 180)).toBe(true);
     expect(isDrawablePoint(-90, -180)).toBe(true);
-  });
-});
-
-describe('personLabel', () => {
-  it('names someone when a name exists', () => {
-    expect(personLabel('Ashleigh P.')).toBe('Ashleigh P.');
-  });
-
-  it('falls back for null, undefined, empty and whitespace', () => {
-    // Whitespace matters: a display_name of "   " must not render as an empty
-    // gap where a person's name belongs — that reads as a rendering bug.
-    for (const v of [null, undefined, '', '   ', '\n\t']) {
-      expect(personLabel(v)).toBe(UNNAMED);
-    }
   });
 });
 

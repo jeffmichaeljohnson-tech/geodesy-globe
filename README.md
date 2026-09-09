@@ -28,7 +28,7 @@ npm install
 npx vitest run
 ```
 
-vitest reports 15 files, 192 passed.
+vitest reports 16 files, 192 passed.
 
 ## An assertion written in terms of its own constant cannot fail
 
@@ -72,15 +72,37 @@ The conformance file anchors `a`, `1/f`, `b` and `e²` against the published
 WGS84 values and pins three ECEF vectors away from the equator. It was driven
 red against both mutations before being trusted.
 
+## Two entry points
+
+```ts
+import { OriginRebase, geodeticToEcef } from 'geodesy-globe';       // pulls three
+import { geodeticToEcef, WGS84 } from 'geodesy-globe/math';         // pulls nothing
+```
+
+`three` is a peer dependency and only `geodesy.ts` imports it, so code that needs
+the maths alone can take the second door and never put three in its bundle.
+
+That is a claim about a file, so a test asserts it: `index.test.ts` reads
+`geodesyMath.ts` and fails if it ever grows an import. A README sentence cannot
+fail; that check can.
+
 ## Status
 
 Extracted from an application globe. `three` is a peer dependency and only
 `geodesy.ts` imports it, so code needing the maths alone can import
 `geodesyMath` and never pull three into its bundle.
 
-One test was removed on extraction rather than carried: it asserted that two of
-the application's data modules both deferred to these rules, which tested the
-callers rather than the rules. The removal is noted in the file it came from.
+Two things were removed on extraction rather than carried, both because they were
+about the application, not about geodesy.
+
+One test asserted that two of the application's data modules both deferred to
+these rules. It tested the callers, not the rules, and it reached into the
+application's schema to do it. The removal is noted in the file it came from.
+
+A name-formatting helper arrived because a test imported it. No source file in
+this package ever used it, and it was briefly exported from the public barrel,
+which would have put "format a person's display name" in the API of a geodesy
+library. It and its two tests went back to the application.
 
 There is a Swift port of the same maths. It is a **port**, not an independent
 implementation, so the two agreeing is not cross-validation.
