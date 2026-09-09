@@ -28,7 +28,24 @@ npm install
 npx vitest run
 ```
 
-vitest reports 13 files, 180 passed.
+vitest reports 14 files, 187 passed.
+
+## The ellipsoid is pinned, and it was not before
+
+`src/wgs84Conformance.test.ts` exists because of a survived mutation. Changing
+the flattening from 1/298.257223563 to 1/300 — a physically wrong ellipsoid that
+displaces positions by up to ~135 m at mid-latitudes — left the entire suite
+green.
+
+Every existing check was blind to it, for three different reasons. The
+equatorial cases are f-independent by definition. The polar case asserted
+`z ≈ WGS84_B`, and `WGS84_B` is *derived* from `f`, so expected and actual moved
+together and it could never fail. The round-trip cases are self-consistent under
+any ellipsoid.
+
+The conformance file anchors `a`, `1/f`, `b` and `e²` against the published
+WGS84 values and pins three ECEF vectors away from the equator. It was driven
+red against both mutations before being trusted.
 
 ## Status
 
