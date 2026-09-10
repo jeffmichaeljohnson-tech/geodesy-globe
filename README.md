@@ -59,6 +59,33 @@ so the example and the code cannot drift apart without the suite going red.
 - `autoRotate.ts` / `cameraPitch.ts` / `cameraTarget.ts` / `depthRange.ts` /
   `navGestures.ts` / `pitchCommand.ts` — camera behaviour.
 
+## Consuming it
+
+**This package ships TypeScript source, not a build.** `exports` points at
+`src/index.ts`, so it runs under a TypeScript-aware runtime or bundler — `tsx`,
+`vitest`, Vite, esbuild, Bun, Deno — and **not** under plain `node`, which
+answers `ERR_UNKNOWN_FILE_EXTENSION` and is right to.
+
+`three` is a **peer** dependency and only `geodesy.ts` imports it. Code that
+wants the maths alone imports the `./math` subpath and never pulls three into
+its bundle:
+
+```ts
+import { geodeticToEcef, ecefToGeodetic, WGS84 } from "geodesy-globe/math";
+
+const [x, y, z] = geodeticToEcef(0, 0, 0);
+// x === WGS84.a exactly: the semi-major axis, on the equator at the prime meridian
+```
+
+One asymmetry to know about, because it is surprising and the compiler is what
+catches it: `geodeticToEcef` returns a **tuple** `[x, y, z]` while
+`ecefToGeodetic` returns an **object** `{ latDeg, lonDeg, altM }`. Destructuring
+the inverse as an array is a `TypeError` at runtime and a type error at compile
+time. The shapes differ because the forward direction feeds straight into
+vertex buffers where a tuple is what the caller wants, and the inverse is read
+by people. Documented rather than changed, because changing it would break every
+existing caller for tidiness.
+
 ## Test
 
 ```

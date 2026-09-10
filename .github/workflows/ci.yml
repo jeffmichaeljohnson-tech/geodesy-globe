@@ -34,6 +34,66 @@ jobs:
             echo "--- TZ=$tz"
             TZ=$tz npx vitest run
           done
+      # The suite tests the repository. This tests the ARTIFACT -- the tarball a
+      # consumer installs -- which fails in ways an in-repo test cannot: a
+      # `files` entry that drops a directory, an `exports` subpath pointing at
+      # something not shipped, a test file left in the package.
+      #
+      # The strongest thing it proves is the peer-dependency claim: the `./math`
+      # subpath has no path to `three`.
+      #
+      # Note `--omit=peer`. npm 7 and later INSTALL peer dependencies
+      # automatically, so a plain `npm i` of this tarball pulls three down even
+      # for a consumer who only wants the maths. A first version of this step
+      # asserted three was simply absent and failed for that reason -- the
+      # assertion was wrong, not the package. What the README actually claims is
+      # about the BUNDLE, and the durable way to test it is to install with
+      # peers omitted and confirm the math subpath still resolves and computes.
+      # If it ever gained a transitive import of three, this step is what
+      # notices, and the README cannot quietly become false.
+      #
+      # The assertion is also an ORACLE rather than a pin: on the equator at the
+      # prime meridian, ECEF x is the WGS84 semi-major axis by definition. That
+      # is a fact about the datum, not about this implementation, so the check
+      # can discover that the code is wrong.
+      - name: the published tarball installs and runs without three
+        run: |
+          set -e
+          npm pack --pack-destination "$RUNNER_TEMP" >/dev/null
+          cd "$RUNNER_TEMP"
+          npm init -y >/dev/null
+          # omit=peer goes in .npmrc, not on one command line. Passing the flag
+          # to the tarball install alone is not enough: the NEXT `npm i` (tsx,
+          # here) re-resolves the whole tree without it and quietly brings the
+          # peer back. Measured, not assumed -- three was absent after the first
+          # install and present again after the second.
+          printf 'omit=peer\n' > .npmrc
+          npm i ./geodesy-globe-*.tgz >/dev/null
+          npm i -D tsx >/dev/null
+          # Quoted heredoc: the assertion contains ${...} template literals and
+          # an unquoted one lets the shell eat them, mangling the message on the
+          # one run where it matters.
+          cat > smoke.ts <<'SMOKE'
+          import { geodeticToEcef, ecefToGeodetic, WGS84 } from "geodesy-globe/math";
+          const [x, y, z] = geodeticToEcef(0, 0, 0);
+          if (Math.round(x) !== Math.round(WGS84.a)) {
+            throw new Error(`ECEF x on the equator should be the semi-major axis ${WGS84.a}, got ${x}`);
+          }
+          const g = ecefToGeodetic(x, y, z);
+          if (Math.abs(g.latDeg) > 1e-9 || Math.abs(g.lonDeg) > 1e-9) {
+            throw new Error(`round-trip drifted: ${JSON.stringify(g)}`);
+          }
+          console.log("published package resolves and computes:", x);
+          SMOKE
+          npx tsx smoke.ts
+          if [ -d node_modules/three ]; then
+            echo "three is present despite --omit=peer; this step cannot prove the claim"; exit 1
+          fi
+          echo "math subpath resolved and computed with three absent"
+          if tar tzf ./geodesy-globe-*.tgz | grep -q 'test\.ts'; then
+            echo "the tarball ships test files"; exit 1
+          fi
+          echo "tarball carries no test files"
       - name: the mutation runner's own suite
         run: npm run test:mutation-runner
       - name: mutation
