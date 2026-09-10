@@ -172,6 +172,37 @@ is itself a check, and a check nobody has watched fail is a claim.
 The nineteen include the two that originally survived unnoticed: the WGS84
 flattening, and every constant whose assertion was written in terms of itself.
 
+### The curated set is not a mutation score
+
+Nineteen of nineteen is a perfect result against a list I wrote, and a perfect
+result against your own list proves only that your imagination and your tests
+agree. They always do. So the number below is the one worth reading:
+
+```
+npx stryker run
+```
+
+**660 generated mutants, 565 caught — 85.76%.** Stryker builds its own mutants
+from the syntax tree rather than from a list, which is how you find the case
+nobody thought to write down.
+
+Per file, because an average hides where the work is:
+
+| file | score |
+|---|---|
+| `autoRotate.ts`, `easing.ts`, `flyCommand.ts`, `pitchCommand.ts` | 100% |
+| `navGestures.ts` | 97.06% |
+| `geodesyMath.ts` | 90.53% |
+| `greatCircle.ts` | 82.91% |
+| `framing.ts` | 65.00% |
+| `geodesy.ts` | 60.00% |
+
+`framing.ts` and `geodesy.ts` are the honest weak points and they are named here
+rather than averaged away. `geodesy.ts` is the only file that imports `three`,
+which is also why it is the hardest to reach from a plain test — a reason, not an
+excuse. A scheduled workflow re-runs the generator, so this table is measured
+rather than remembered.
+
 ## Status
 
 Extracted from an application globe. `three` is a peer dependency and only
