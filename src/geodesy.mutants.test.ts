@@ -18,7 +18,7 @@
  *   bit-for-bit equal to `rotX` (verified: all 16 elements identical). Every one of
  *   the three mutants therefore returns the SAME matrix as the original for the only
  *   value the constant can hold. No input distinguishes them; a test that appeared to
- *   "kill" one would only be pinning `rotX`, which is the branch both sides return.
+ *   "catch" one would only be pinning `rotX`, which is the branch both sides return.
  *   The sphereToEcefMatrix test below pins that matrix as real coverage — it can fail
  *   if the +90°-about-X mapping is ever broken — but it is not claimed to catch L86.
  */

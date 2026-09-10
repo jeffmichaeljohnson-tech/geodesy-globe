@@ -22,7 +22,7 @@
  *     original by a whole multiple of 360°, and every consumer feeds it to sin/cos
  *     (periodic in 360°) or to normalizeLon (which re-wraps mod 360). Verified: the
  *     subsolar output is bit-unchanged. No input distinguishes them.
- *   - normalizeLon `-> lon - 180` (line 139) is already killed by solarConformance's
+ *   - normalizeLon `-> lon - 180` (line 139) is already caught by solarConformance's
  *     "near the prime meridian at noon" check, so it is not re-pinned here.
  */
 import { describe, expect, it } from 'vitest';

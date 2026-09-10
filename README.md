@@ -183,13 +183,13 @@ four verdicts, and the third is why it exists:
 
 | verdict | meaning |
 |---|---|
-| `KILLED` | the suite ran and failed — the mutation is caught |
+| `CAUGHT` | the suite ran and failed — the mutation is caught |
 | `SURVIVED` | the suite ran and passed — nothing pins this behaviour |
 | `INCONCLUSIVE` | non-zero exit, but no evidence any test ran |
 | `NOT-APPLIED` | the pattern was absent, or matched more than once |
 
 A mutation that stops the code compiling also exits non-zero. A runner reading
-only the exit code scores that as a kill it never earned, so a spec declares a
+only the exit code scores that as a catch it never earned, so a spec declares a
 marker the test runner prints only when tests actually execute, and a non-zero
 exit without it is `INCONCLUSIVE` — never counted as caught.
 
@@ -206,12 +206,20 @@ result against your own list proves only that your imagination and your tests
 agree. They always do. So the number below is the one worth reading:
 
 ```
-npx stryker run
+npm i -D @stryker-mutator/core@^9
+npx stryker run     # uses the committed stryker.conf.json — see the note below
 ```
 
-**660 generated mutants, 619 caught — 93.94%.** Stryker builds its own mutants
+**660 generated mutants, 620 caught — 93.94%.** Stryker builds its own mutants
 from the syntax tree rather than from a list, which is how you find the case
 nobody thought to write down.
+
+The 620 is 619 caught outright plus one caught by timeout. Stryker reports those
+separately and counts both as detected, which is right: a mutant that sends the
+suite into a loop the harness had to interrupt is a mutant the suite noticed. The
+outright figure alone would be 93.79%, and two numbers one apart is exactly the
+kind of gap a reader should be able to close without asking, so the arithmetic is
+written out rather than asserted.
 
 Per file, because an average hides where the work is:
 
@@ -253,6 +261,36 @@ rather than edited away.
 `geodesy.ts` at 80% is the genuine remainder. It is the only file importing
 `three`, which is what makes it hardest to reach from a plain test — a reason,
 not an excuse.
+
+### Reproducing that number — the runner matters
+
+Use the **command** runner, not Stryker's vitest runner. `stryker.conf.json` in
+this repository is the config that produced the table above, so `npx stryker run`
+picks it up with no arguments.
+
+This is not a preference. Stryker's vitest runner declares `vitest: ">=2.0.0"`,
+installs happily against the vitest 5 this package now ships, and then reports
+whole files at 0.00% with every mutant surviving **while all 263 tests pass**. On
+one commit with nothing changed but the vitest version it scored this package at
+**16.84%**. Anyone who runs `npx stryker run` with the default vitest runner will
+get that number and reasonably conclude the 93.94% above is a fabrication.
+
+It is not, and the check is cheap. The command runner shells out to
+`npx vitest run` per mutant, so a broken runner integration cannot fool it, and
+it reproduces the table above **exactly — all fifteen files, to the second
+decimal** — on vitest 5. The same table came from vitest 2 with the vitest
+runner. Two independent toolchains, identical results:
+
+| | vitest 2 + vitest runner | vitest 5 + command runner |
+|---|---|---|
+| score | 93.94% | 93.94% |
+| files agreeing | — | 15 of 15 |
+
+The workflow also runs `scripts/check-mutation-harness.mjs`, which refuses to
+publish a score the harness did not earn: the curated set in `mutations.json`
+invokes the test command as a subprocess and cannot be fooled the same way, so if
+a generated report claims a curated file caught nothing, the two witnesses
+disagree and the run fails rather than printing a number.
 
 A scheduled workflow re-runs the generator, so this table is measured rather
 than remembered.

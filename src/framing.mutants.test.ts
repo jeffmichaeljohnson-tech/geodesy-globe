@@ -6,8 +6,8 @@
  *
  *   OF THE MUTANTS STILL OPEN, ALL ARE EQUIVALENT. The one open mutant that was
  *   NOT equivalent — the L68 guard forced to `if (true) return baseDist`, which
- *   would disable the pull-back entirely — is ALREADY killed by the existing
- *   "pulls back on a phone portrait viewport" test. The rest cannot be killed by
+ *   would disable the pull-back entirely — is ALREADY caught by the existing
+ *   "pulls back on a phone portrait viewport" test. The rest cannot be caught by
  *   any input, because the code is guarded twice and the second guard makes the
  *   first redundant:
  *
@@ -42,7 +42,7 @@
  * This was confirmed two ways: a structural argument (above) and a differential
  * sweep of the original against each mutant over a wide grid of aspect and baseDist
  * (including the crossover baseDist and the extremes 0, ±∞, NaN, 1e-9, 1e6) — zero
- * differences. So there are NO new killing tests to write for framing.ts without
+ * differences. So there are NO new catching tests to write for framing.ts without
  * changing the source, and inventing assertions that "pass on both" would be exactly
  * the tautology this repository was burned by.
  *

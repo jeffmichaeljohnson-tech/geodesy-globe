@@ -13,7 +13,7 @@
  * that convention deliberate; it cannot discover that the convention is "wrong".
  *
  * NOT written, and why:
- *   L47 `((lonDeg+180)%360+360)%360 - 180 -> lonDeg - 180` is ALREADY killed by the
+ *   L47 `((lonDeg+180)%360+360)%360 - 180 -> lonDeg - 180` is ALREADY caught by the
  *   existing "folds values past the antimeridian" test (normaliseLon(190) => -170,
  *   which lonDeg-180 = 10 cannot satisfy). Not re-pinned.
  *   L49 `if (Object.is(l, -0)) l = 0` (cond `-> false`, and `l = 0 -> l = +0`) is

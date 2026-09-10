@@ -24,7 +24,7 @@
  *        measure-zero coincidence no constructed input reaches.
  *   L200 `if (!(c > 1e-3)) … -> false` / `>= 1e-3`: clampPitchDeg caps pitch at 85°, so
  *        c = cos(85°) ≈ 0.087 is never ≤ 1e-3 and the guard never fires. (The `-> true`
- *        form, which WOULD skip the 1/cos altitude scaling, is already killed by the
+ *        form, which WOULD skip the 1/cos altitude scaling, is already caught by the
  *        existing "PRESERVES the altitude" test.)
  */
 import { describe, expect, it } from 'vitest';
