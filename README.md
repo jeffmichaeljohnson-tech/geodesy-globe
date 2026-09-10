@@ -93,7 +93,7 @@ npm install
 npx vitest run
 ```
 
-vitest reports 19 files, 217 passed.
+vitest reports 30 files, 263 passed.
 
 ## An assertion written in terms of its own constant cannot fail
 
@@ -209,7 +209,7 @@ agree. They always do. So the number below is the one worth reading:
 npx stryker run
 ```
 
-**660 generated mutants, 565 caught — 85.76%.** Stryker builds its own mutants
+**660 generated mutants, 619 caught — 93.94%.** Stryker builds its own mutants
 from the syntax tree rather than from a list, which is how you find the case
 nobody thought to write down.
 
@@ -217,18 +217,45 @@ Per file, because an average hides where the work is:
 
 | file | score |
 |---|---|
-| `autoRotate.ts`, `easing.ts`, `flyCommand.ts`, `pitchCommand.ts` | 100% |
-| `navGestures.ts` | 97.06% |
-| `geodesyMath.ts` | 90.53% |
-| `greatCircle.ts` | 82.91% |
+| `autoRotate.ts`, `easing.ts`, `flyCommand.ts`, `navGestures.ts`, `pitchCommand.ts` | 100% |
+| `geodesyMath.ts` | 97.89% |
+| `greatCircle.ts` | 97.44% |
+| `homecoming.ts` | 96.63% |
+| `cameraPitch.ts` | 95.73% |
+| `depthRange.ts` | 94.12% |
+| `cameraTarget.ts` | 93.75% |
+| `flightPath.ts` | 91.43% |
+| `drawablePoint.ts` | 88.89% |
+| `geodesy.ts` | 80.00% |
 | `framing.ts` | 65.00% |
-| `geodesy.ts` | 60.00% |
 
-`framing.ts` and `geodesy.ts` are the honest weak points and they are named here
-rather than averaged away. `geodesy.ts` is the only file that imports `three`,
-which is also why it is the hardest to reach from a plain test — a reason, not an
-excuse. A scheduled workflow re-runs the generator, so this table is measured
-rather than remembered.
+### `framing.ts` sits at 65% and it is not a coverage gap
+
+An earlier version of this section called it one, and that was the wrong
+reading. Of its fourteen open mutants, one is caught by an existing test and the
+other **thirteen are equivalent**: no input distinguishes the mutated code from
+the original, so no test can catch them and any test written to try would pass
+either way. The function is guarded twice and the second guard makes the first
+redundant, and the `π/2` clamp bound is never selected because the target
+half-angle is always below it.
+
+That was checked rather than argued: a differential sweep ran the original
+against each mutant over a wide aspect-by-distance grid, including the exact
+`fill == 1` crossover and the extremes `0`, `±Infinity` and `NaN`. Zero
+differences anywhere.
+
+**This is the known bias in every mutation score.** A generator counts an
+equivalent mutant as a failure because it cannot tell one from a real gap, so a
+score is a floor rather than a measurement. Naming where that bias lands is more
+useful than quietly raising the number, and the correction is left visible here
+rather than edited away.
+
+`geodesy.ts` at 80% is the genuine remainder. It is the only file importing
+`three`, which is what makes it hardest to reach from a plain test — a reason,
+not an excuse.
+
+A scheduled workflow re-runs the generator, so this table is measured rather
+than remembered.
 
 ## Status
 
